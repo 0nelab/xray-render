@@ -11,7 +11,7 @@
             "settings": {
                 "clients": [
                     {
-                        "id": "de04add9-5c68-8bab-950c-08cd5320df18",
+                        "id": "5887f4f1-3b60-4349-8548-2eceb686193f",
                         "flow": "xtls-rprx-direct"
                     }
                 ],
@@ -29,7 +29,7 @@
                         "dest": 3003
                     },
                     {
-                        "path": "/trojan",
+                        "path": "/6b0f57e93894",
                         "dest": 3004
                     },
                     {
@@ -49,7 +49,7 @@
             "settings": {
                 "clients": [
                     {
-                        "id": "de04add9-5c68-8bab-950c-08cd5320df18"
+                        "id": "5887f4f1-3b60-4349-8548-2eceb686193f"
                     }
                 ],
                 "decryption": "none"
@@ -66,7 +66,7 @@
             "settings": {
                 "clients": [
                     {
-                        "id": "de04add9-5c68-8bab-950c-08cd5320df18",
+                        "id": "5887f4f1-3b60-4349-8548-2eceb686193f",
                         "level": 0
                     }
                 ],
@@ -96,7 +96,7 @@
             "settings": {
                 "clients": [
                     {
-                        "id": "de04add9-5c68-8bab-950c-08cd5320df18",
+                        "id": "5887f4f1-3b60-4349-8548-2eceb686193f",
                         "alterId": 0
                     }
                 ]
@@ -124,7 +124,7 @@
             "settings": {
                 "clients": [
                     {
-                        "password": "de04add9-5c68-8bab-950c-08cd5320df18"
+                        "password": "5887f4f1-3b60-4349-8548-2eceb686193f"
                     }
                 ]
             },
@@ -132,7 +132,7 @@
                 "network": "ws",
                 "security": "none",
                 "wsSettings": {
-                    "path": "/trojan"
+                    "path": "/6b0f57e93894"
                 }
             },
             "sniffing": {
@@ -153,7 +153,7 @@
                 "clients": [
                     {
                         "method": "chacha20-ietf-poly1305",
-                        "password": "de04add9-5c68-8bab-950c-08cd5320df18"
+                        "password": "5887f4f1-3b60-4349-8548-2eceb686193f"
                     }
                 ],
                 "decryption": "none"
