@@ -208,6 +208,11 @@
                     "domain:ai.com"
                 ],
                 "outboundTag": "WARP"
+            },
+            {
+                "type": "field",
+                "network": "tcp,udp",
+                "outboundTag": "WARP"
             }
         ]
     },
