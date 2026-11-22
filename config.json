@@ -35,6 +35,10 @@
                     {
                         "path": "/shadowsocks",
                         "dest": 3005
+                    },
+                    {
+                        "path": "/9252579794b6",
+                        "dest": 3006
                     }
                 ]
             },
@@ -173,10 +177,40 @@
                 ],
                 "metadataOnly": false
             }
+        },
+        {
+            "tag": "in-direct",
+            "port": 3006,
+            "listen": "127.0.0.1",
+            "protocol": "trojan",
+            "settings": {
+                "clients": [
+                    {
+                        "password": "5887f4f1-3b60-4349-8548-2eceb686193f"
+                    }
+                ]
+            },
+            "streamSettings": {
+                "network": "ws",
+                "security": "none",
+                "wsSettings": {
+                    "path": "/9252579794b6"
+                }
+            },
+            "sniffing": {
+                "enabled": true,
+                "destOverride": [
+                    "http",
+                    "tls",
+                    "quic"
+                ],
+                "metadataOnly": false
+            }
         }
     ],
     "outbounds": [
         {
+            "tag": "direct",
             "protocol": "freedom",
             "settings": {}
         },
@@ -201,6 +235,13 @@
     "routing": {
         "domainStrategy": "AsIs",
         "rules": [
+            {
+                "type": "field",
+                "inboundTag": [
+                    "in-direct"
+                ],
+                "outboundTag": "direct"
+            },
             {
                 "type": "field",
                 "domain": [
