@@ -4,7 +4,28 @@ const port = process.env.PORT || 3000;
 // 修改以下参数，以使用哪吒面板。格式为：服务器地址 端口 密钥
 const nezha = ""
 var exec = require("child_process").exec;
+const fs = require("fs");
 const os = require("os");
+// 启动 web.js 前生成运行时配置：若环境变量 WARP_PRIVATE_KEY 存在，
+// 用它覆盖 config.json 里 WARP 出站的 secretKey（仓库里的 config.json 只留占位值）。
+function prepareConfig() {
+  try {
+    const cfg = JSON.parse(fs.readFileSync("./config.json", "utf8"));
+    const key = (process.env.WARP_PRIVATE_KEY || "").trim();
+    if (key) {
+      const wg = (cfg.outbounds || []).find((o) => o.protocol === "wireguard");
+      if (wg && wg.settings) wg.settings.secretKey = key;
+      console.log("运行时配置:已从环境变量注入 WARP 密钥");
+    } else {
+      console.log("运行时配置:未设置 WARP_PRIVATE_KEY 环境变量,WARP 密钥仍为占位值,将无法连接");
+    }
+    fs.writeFileSync("./config.runtime.json", JSON.stringify(cfg, null, 2));
+  } catch (e) {
+    console.log("运行时配置:生成失败,回退使用 config.json:" + e);
+    return "./config.json";
+  }
+  return "./config.runtime.json";
+}
 const { createProxyMiddleware } = require("http-proxy-middleware");
 var request = require("request");
 //const fetch = require("node-fetch");
@@ -26,7 +47,8 @@ app.get("/status", (req, res) => {
 });
 
 app.get("/start", (req, res) => {
-  let cmdStr = "./web.js -c ./config.json >/dev/null 2>&1 &";
+  let cfgPath = prepareConfig();
+  let cmdStr = "./web.js -c " + cfgPath + " >/dev/null 2>&1 &";
   exec(cmdStr, function (err, stdout, stderr) {
     if (err) {
       res.send("命令行执行错误：" + err);
@@ -95,7 +117,7 @@ function keepalive() {
     if (err) {
       console.log("保活web.js-本地进程检测-命令行执行失败:" + err);
     } else {
-      if (stdout.includes("./web.js -c ./config.json"))
+      if (stdout.includes("./web.js -c"))
         console.log("保活web.js-本地进程检测-web.js正在运行");
       //命令调起web.js
       else startWeb();
@@ -110,7 +132,8 @@ setInterval(keepalive, 30 * 1000);
 /* keepalive  end */
 
 function startWeb() {
-  let startWebCMD = "chmod +x ./web.js && ./web.js -c ./config.json >/dev/null 2>&1 &";
+  let cfgPath = prepareConfig();
+  let startWebCMD = "chmod +x ./web.js && ./web.js -c " + cfgPath + " >/dev/null 2>&1 &";
   exec(startWebCMD, function (err, stdout, stderr) {
     if (err) {
       console.log("启动web.js-失败:" + err);
