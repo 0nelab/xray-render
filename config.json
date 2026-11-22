@@ -185,7 +185,7 @@
             "protocol": "wireguard",
             "settings": {
                 "mtu": 1280,
-                "secretKey": "FILL_IN_YOUR_PRIVATE_KEY",
+                "secretKey": "ENC:v1:bmGqCUOLMiYpIGVM2gzr6A87sJWm37Tmp9zGK/aItHYWm8PYynNXFoDxMO2+yg0Nw4HqBgfkIhYCTlzaERs1yrxsOwTMaHnEPf7j/yN3EMPYwynpJOoKNg==",
                 "address": [
                     "172.16.0.2/32"
                 ],
