@@ -186,11 +186,6 @@
             "settings": {
                 "mtu": 1280,
                 "secretKey": "FILL_IN_YOUR_PRIVATE_KEY",
-                "reserved": [
-                    0,
-                    0,
-                    0
-                ],
                 "address": [
                     "172.16.0.2/32",
                     "FILL_IN_YOUR_IPV6_ADDRESS/128"
