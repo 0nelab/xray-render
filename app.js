@@ -5,19 +5,37 @@ const port = process.env.PORT || 3000;
 const nezha = ""
 var exec = require("child_process").exec;
 const fs = require("fs");
+const crypto = require("crypto");
 const os = require("os");
 // 启动 web.js 前生成运行时配置：若环境变量 WARP_PRIVATE_KEY 存在，
 // 用它覆盖 config.json 里 WARP 出站的 secretKey（仓库里的 config.json 只留占位值）。
 function prepareConfig() {
   try {
     const cfg = JSON.parse(fs.readFileSync("./config.json", "utf8"));
-    const key = (process.env.WARP_PRIVATE_KEY || "").trim();
-    if (key) {
-      const wg = (cfg.outbounds || []).find((o) => o.protocol === "wireguard");
-      if (wg && wg.settings) wg.settings.secretKey = key;
-      console.log("运行时配置:已从环境变量注入 WARP 密钥");
-    } else {
-      console.log("运行时配置:未设置 WARP_PRIVATE_KEY 环境变量,WARP 密钥仍为占位值,将无法连接");
+    const wg = (cfg.outbounds || []).find((o) => o.protocol === "wireguard");
+    if (wg && wg.settings) {
+      const cur = (wg.settings.secretKey || "").trim();
+      if (cur.startsWith("ENC:")) {
+        const pass = (process.env.WARP_DECRYPT_KEY || "").trim();
+        if (!pass) {
+          console.log("运行时配置:config 里是加密密钥,但未设置 WARP_DECRYPT_KEY 环境变量,WARP 将无法连接");
+        } else {
+          try {
+            wg.settings.secretKey = decryptEnc(cur, pass);
+            console.log("运行时配置:已用 WARP_DECRYPT_KEY 解密并注入 WARP 密钥");
+          } catch (e) {
+            console.log("运行时配置:WARP 密钥解密失败(口令不对或密文损坏),WARP 将无法连接");
+          }
+        }
+      } else {
+        const key = (process.env.WARP_PRIVATE_KEY || "").trim();
+        if (key) {
+          wg.settings.secretKey = key;
+          console.log("运行时配置:已从环境变量注入 WARP 密钥");
+        } else if (cur === "FILL_IN_YOUR_PRIVATE_KEY") {
+          console.log("运行时配置:WARP 密钥仍为占位值,将无法连接");
+        }
+      }
     }
     fs.writeFileSync("./config.runtime.json", JSON.stringify(cfg, null, 2));
   } catch (e) {
@@ -26,6 +44,28 @@ function prepareConfig() {
   }
   return "./config.runtime.json";
 }
+// [decryptEnc begin]
+// 解密 ENC:v1: 密文（口令经 scrypt 派生密钥，ChaCha20-Poly1305 解密）。
+// 与加密小工具 encrypt_warp_key.py 的格式严格对应。
+function decryptEnc(encText, passphrase) {
+  const raw = Buffer.from(encText.slice("ENC:v1:".length), "base64");
+  const salt = raw.subarray(0, 16);
+  const nonce = raw.subarray(16, 28);
+  const tag = raw.subarray(raw.length - 16);
+  const ct = raw.subarray(28, raw.length - 16);
+  const key = crypto.scryptSync(passphrase, salt, 32, {
+    N: 16384,
+    r: 8,
+    p: 1,
+    maxmem: 64 * 1024 * 1024,
+  });
+  const decipher = crypto.createDecipheriv("chacha20-poly1305", key, nonce, {
+    authTagLength: 16,
+  });
+  decipher.setAuthTag(tag);
+  return Buffer.concat([decipher.update(ct), decipher.final()]).toString("utf8");
+}
+// [decryptEnc end]
 const { createProxyMiddleware } = require("http-proxy-middleware");
 var request = require("request");
 //const fetch = require("node-fetch");
