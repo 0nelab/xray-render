@@ -37,6 +37,21 @@ function prepareConfig() {
         }
       }
     }
+    // 节点密码:环境变量 NODE_PASSWORD 存在时,覆盖所有入站客户端的 id / password。
+    // 仓库 config.json 里只保留模板默认值,真实密码只存在于各平台的环境变量/密钥中,不写进文件。
+    // 注意:NODE_PASSWORD 同时用作 vless / vmess 的用户 ID,必须是 UUID 格式。
+    const nodePass = (process.env.NODE_PASSWORD || "").trim();
+    if (nodePass) {
+      let n = 0;
+      for (const ib of cfg.inbounds || []) {
+        const clients = (ib.settings && ib.settings.clients) || [];
+        for (const c of clients) {
+          if (c.id) { c.id = nodePass; n++; }
+          if (c.password) { c.password = nodePass; n++; }
+        }
+      }
+      console.log("运行时配置:已从环境变量 NODE_PASSWORD 注入节点密码(共 " + n + " 处)");
+    }
     fs.writeFileSync("./config.runtime.json", JSON.stringify(cfg, null, 2));
   } catch (e) {
     console.log("运行时配置:生成失败,回退使用 config.json:" + e);
