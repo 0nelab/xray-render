@@ -1,28 +1,23 @@
-# Fly.io deployment config for xray-render (Fly edition).
-# Shares the same Dockerfile / app.js / config.json as the Northflank edition;
-# the repo needs no other change. Only this file is new.
+# fly.toml app configuration file generated for xray-render on 2026-11-25T04:05:05Z
 #
-# Shape notes (why it is built this way):
-# - One Machine, always on, smallest size: stays inside the Free plan's $5/mo.
-# - Public entry is HTTPS 443 only, routed by the app domain to internal 3000,
-#   where app.js proxies WebSocket traffic to the xray inbound (same as Northflank).
-# - No dedicated IPv4, no UDP services: the Free plan does not include them.
+# See https://docs.fly.io/reference/configuration for information about how to use this file.
+#
 
-app = "0nelab-xray-fly"
-primary_region = "iad"
+app = 'xray-render'
+primary_region = 'ams'
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = 'Dockerfile'
 
 [env]
-  PORT = "3000"
+  PORT = '3000'
 
 [http_service]
-  internal_port = 3000
+  internal_port = 8080
   force_https = true
-  auto_stop_machines = "off"
+  auto_stop_machines = 'off'
   min_machines_running = 1
 
 [[vm]]
-  size = "shared-cpu-1x"
-  memory = "256mb"
+  size = 'shared-cpu-1x'
+  memory = '256mb'
