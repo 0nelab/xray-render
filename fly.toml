@@ -8,7 +8,7 @@
 #   where app.js proxies WebSocket traffic to the xray inbound (same as Northflank).
 # - No dedicated IPv4, no UDP services: the Free plan does not include them.
 
-app = "0nelab-xray-fly"
+app = "xray-render"
 primary_region = "iad"
 
 [build]
