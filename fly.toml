@@ -9,7 +9,7 @@
 # - No dedicated IPv4, no UDP services: the Free plan does not include them.
 
 app = "xray-render"
-primary_region = "iad"
+primary_region = "lax"
 
 [build]
   dockerfile = "Dockerfile"
